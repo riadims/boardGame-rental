@@ -1,3 +1,7 @@
+// server.js
+// Main entry point for the Board Game Rental backend server.
+// Sets up Express, connects to MongoDB, and configures all API routes and middleware.
+
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -11,22 +15,29 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:5173", "http://localhost:5000"] // frontend origin
-}));
+// Enable CORS for frontend and local API testing
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "http://localhost:5000"], // Allowed frontend origins
+  })
+);
+
+// Parse incoming JSON requests
 app.use(express.json());
 
-// Middleware
+// Authentication routes (register, login)
 app.use("/api/auth", authRoutes);
+// User management routes (profile, password change, etc.)
 app.use("/api/users", userRoutes);
+// Board game management routes (CRUD, rent/return)
 app.use("/api/games", boardGameRoutes);
 
-// Routes
+// Root route for health check
 app.get("/", (req, res) => {
   res.send("Board Game Rental API is running");
 });
 
-// Connect to MongoDB
+// Connect to MongoDB and start the server
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {

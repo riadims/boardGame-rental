@@ -66,6 +66,21 @@ textarea {
   background-color: #45a049;
 }
 
+.cancelBtn {
+  padding: 10px;
+  font-size: 1rem;
+  background-color: #ff6666;
+  color: rgb(255, 255, 255);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.cancelBtn:hover {
+  background-color: #ff0000;
+}
+
 .error {
   color: red;
   text-align: center;

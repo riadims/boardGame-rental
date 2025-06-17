@@ -1,11 +1,18 @@
 // routes/boardGameRoutes.js
+// Express routes for board game management (CRUD, rent, return, user games).
+// All protected routes require authentication via JWT.
+
 import express from "express";
 import BoardGame from "../models/BoardGame.js";
 import protect from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Get all board games
+/**
+ * @route   GET /api/games/
+ * @desc    Get all board games
+ * @access  Public
+ */
 router.get('/', async (req, res) => {
   try {
     const games = await BoardGame.find();
@@ -15,7 +22,11 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Get one game by ID
+/**
+ * @route   GET /api/games/:id
+ * @desc    Get a single board game by ID
+ * @access  Public
+ */
 router.get("/:id", async (req, res) => {
   try {
     const game = await BoardGame.findById(req.params.id);
@@ -26,7 +37,11 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Update a game (admin or for status updates)
+/**
+ * @route   PUT /api/games/:id
+ * @desc    Update a board game (admin or owner)
+ * @access  Private
+ */
 router.put("/:id", protect, async (req, res) => {
   try {
     const game = await BoardGame.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -37,7 +52,11 @@ router.put("/:id", protect, async (req, res) => {
   }
 });
 
-// Delete a game
+/**
+ * @route   DELETE /api/games/:id
+ * @desc    Delete a board game
+ * @access  Private
+ */
 router.delete("/:id", protect, async (req, res) => {
   try {
     const game = await BoardGame.findByIdAndDelete(req.params.id);
@@ -48,20 +67,25 @@ router.delete("/:id", protect, async (req, res) => {
   }
 });
 
-// Rent a board game
+/**
+ * @route   PUT /api/games/rent/:id
+ * @desc    Rent a board game (mark as borrowed)
+ * @access  Private
+ */
 router.put("/rent/:id", protect, async (req, res) => {
   try {
     const game = await BoardGame.findById(req.params.id);
 
     if (!game) return res.status(404).json({ message: "Game not found" });
-    if (game.availability === "borrowed") {
+
+    if (!game.available) {
       return res.status(400).json({ message: "Game already borrowed" });
     }
 
-    game.availability = "borrowed";
+    game.available = false;
     game.borrowedBy = req.user._id;
     game.borrowedDate = new Date();
-    game.returnDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days later
+    game.returnDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
 
     await game.save();
     res.json(game);
@@ -70,20 +94,24 @@ router.put("/rent/:id", protect, async (req, res) => {
   }
 });
 
-// Return a board game
+/**
+ * @route   PUT /api/games/return/:id
+ * @desc    Return a borrowed board game
+ * @access  Private
+ */
 router.put("/return/:id", protect, async (req, res) => {
   try {
     const game = await BoardGame.findById(req.params.id);
 
     if (!game) return res.status(404).json({ message: "Game not found" });
-    if (game.availability === "available") {
+    if (game.available === true) {
       return res.status(400).json({ message: "Game is not currently borrowed" });
     }
     if (String(game.borrowedBy) !== String(req.user._id)) {
       return res.status(403).json({ message: "You did not borrow this game" });
     }
 
-    game.availability = "available";
+    game.available = true;
     game.borrowedBy = null;
     game.borrowedDate = null;
     game.returnDate = null;
@@ -95,6 +123,11 @@ router.put("/return/:id", protect, async (req, res) => {
   }
 });
 
+/**
+ * @route   GET /api/games/my-games
+ * @desc    Get all games owned by the current user
+ * @access  Private
+ */
 router.get('/my-games', protect, async (req, res) => {
   try {
     const games = await BoardGame.find({ owner: req.user._id });
@@ -104,31 +137,47 @@ router.get('/my-games', protect, async (req, res) => {
   }
 });
 
-
+/**
+ * @route   POST /api/games/
+ * @desc    Create a new board game
+ * @access  Private
+ */
 router.post("/", protect, async (req, res) => {
   const { title, description, category, available } = req.body;
 
   if (!title) {
     return res.status(400).json({ message: "Naslov igre je obvezen." });
   }
-  console.log("Creating game with owner:", req.user?._id);
+  // console.log("Creating game with owner:", req.user?._id);
   try {
     const newGame = new BoardGame({
       title,
       description,
       category,
-      available,
+      available: available !== undefined ? available : true, // enforce true if not provided
       owner: req.user && req.user._id ? req.user._id : null,
     });
-    
+
     const savedGame = await newGame.save();
     res.status(201).json(savedGame);
   } catch (err) {
-    console.error(err);
+    // console.error(err);
     res.status(500).json({ message: "Napaka pri shranjevanju igre." });
   }
 });
 
-
+/**
+ * @route   GET /api/games/borrowed
+ * @desc    Get all games borrowed by the current user
+ * @access  Private
+ */
+router.get("/borrowed", protect, async (req, res) => {
+  try {
+    const games = await BoardGame.find({ borrowedBy: req.user._id });
+    res.json(games);
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
 
 export default router;
