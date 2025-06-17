@@ -1,104 +1,52 @@
-# Board Game Rental Backend
+# Board Game Rental — Full Stack Project
 
-This is the backend server for the Board Game Rental application. It is built with Node.js, Express, and MongoDB (using Mongoose). The backend provides RESTful API endpoints for user authentication, board game management, and user profile operations.
+This repository contains a complete board game rental application, featuring a React + Vite frontend and a Node.js/Express + MongoDB backend. The project is designed to help users register, log in, manage their board games, borrow and return games, and update their account settings.
 
-## Features
-- User registration, login, and JWT-based authentication
-- Board game CRUD operations (add, edit, delete, list)
-- Borrowing and returning games
-- User profile management and password change
-- MongoDB database integration (Atlas or local)
-- Secure password hashing with bcrypt
+## Project Overview
 
-## Project Structure
+- **Frontend**: Built with React and Vite, providing a modern, responsive user interface. Users can register, log in, browse available games, add/edit/delete their own games, borrow/return games, and manage their account settings.
+- **Backend**: Built with Node.js, Express, and MongoDB (Mongoose). Handles user authentication (JWT), board game CRUD operations, borrowing/returning logic, and user profile management. Passwords are securely hashed, and all sensitive routes are protected.
+
+## Repository Structure
+
 ```
-server/
-├── middleware/           # Express middleware (e.g., auth)
-├── models/               # Mongoose models (User, BoardGame)
-├── routes/               # Express route handlers
-├── server.js             # Main server entry point
-├── package.json          # Project dependencies and scripts
-└── ...                   # Other config files
+boardGame-rental/
+├── boardgame-frontend/   # React + Vite frontend application
+│   └── README.md         # Frontend setup & usage instructions
+├── server/               # Node.js/Express backend API
+│   └── README.md         # Backend setup & usage instructions
+├── readme.md             # (This file) Project overview & architecture
+└── ...                   # Other project files
 ```
 
-## Prerequisites
-- Node.js (v18 or newer recommended)
-- npm (comes with Node.js)
-- MongoDB Atlas account (or a local MongoDB instance)
+## Key Features
+- User registration and login with JWT authentication
+- Secure password storage and change functionality
+- Add, edit, delete, and list board games
+- Borrow and return games, with status tracking
+- User dashboard and settings
+- RESTful API with clear separation of concerns
+- MongoDB Atlas or local MongoDB support
+- Modern, component-based frontend with CSS modules
 
-## Setup Instructions
+## Installation & Setup
+- **Frontend and backend have separate installation and setup instructions.**
+- Please refer to the `README.md` files in the `boardgame-frontend/` and `server/` folders for detailed guides on installing dependencies, configuring environment variables, and running each part of the project.
 
-### 1. Clone the Repository
-```sh
-git clone <repo-url>
-cd boardGame-rental/server
-```
+## Technologies Used
+- **Frontend**: React, Vite, React Router, CSS Modules, Axios
+- **Backend**: Node.js, Express, Mongoose, MongoDB, JWT, bcrypt, dotenv, CORS
 
-### 2. Install Dependencies
-```sh
-npm install
-```
+## Environment & Configuration
+- The backend requires a `.env` file for MongoDB and JWT configuration (see backend README).
+- The frontend expects the backend API to be running and accessible (see frontend README).
 
-### 3. Create a MongoDB Database
-- Go to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and create a free account if you don't have one.
-- Create a new cluster and database.
-- Add a database user and password.
-- Whitelist your IP address or allow access from anywhere (for development).
-- Copy your connection string (e.g., `mongodb+srv://<user>:<password>@cluster0.mongodb.net/<dbname>?retryWrites=true&w=majority`).
-
-### 4. Configure Environment Variables
-Create a `.env` file in the `server/` directory with the following content:
-```
-MONGO_URI=<your-mongodb-connection-string>
-JWT_SECRET=<your-random-jwt-secret>
-PORT=5000
-```
-- Replace `<your-mongodb-connection-string>` with your Atlas URI.
-- Set `<your-random-jwt-secret>` to a long, random string.
-- You can change the `PORT` if needed.
-
-### 5. Start the Server
-```sh
-npm start
-npm run dev
-```
-- The server will run on `http://localhost:5000` by default.
-- Ensure your frontend is configured to use this backend API.
-
-## API Endpoints
-
-### Authentication
-- `POST /api/auth/register` — Register a new user
-- `POST /api/auth/login` — Login and receive JWT token
-- `GET /api/auth/me` — Get current user info (requires token)
-
-### User
-- `GET /api/users/me` — Get current user profile
-- `PUT /api/users/me` — Update user profile
-- `DELETE /api/users/me` — Delete user account
-- `PUT /api/users/change-password` — Change password
-- `GET /api/users/usernames` — List all usernames
-
-### Board Games
-- `GET /api/games/` — List all games
-- `GET /api/games/:id` — Get game by ID
-- `POST /api/games/` — Add a new game (requires token)
-- `PUT /api/games/:id` — Update a game (requires token)
-- `DELETE /api/games/:id` — Delete a game (requires token)
-- `PUT /api/games/rent/:id` — Borrow a game (requires token)
-- `PUT /api/games/return/:id` — Return a borrowed game (requires token)
-- `GET /api/games/my-games` — List games owned by current user (requires token)
-- `GET /api/games/borrowed` — List games borrowed by current user (requires token)
-
-## Notes
-- All protected routes require the `Authorization: Bearer <token>` header.
-- Passwords are securely hashed using bcrypt before storage.
-- JWT tokens are used for authentication and should be kept secret.
-
-## Development Tips
-- Use [Postman](https://www.postman.com/) or [Insomnia](https://insomnia.rest/) to test API endpoints.
-- If using a local MongoDB instance, update `MONGO_URI` accordingly.
-- For production, use strong secrets and restrict CORS origins.
+## Contribution & Customization
+- The project is modular and can be extended with new features (e.g., game images, reviews, admin roles).
+- Feel free to fork, modify, and use for learning or as a starter for your own projects.
 
 ## License
 This project is provided as-is for educational and demonstration purposes.
+
+---
+For installation, setup, and API usage, please see the `README.md` files in each respective folder.
